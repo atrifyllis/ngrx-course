@@ -11,13 +11,16 @@ import {MessageListComponent} from "./message-list/message-list.component";
 import {ThreadsService} from "./services/threads.service";
 import {StoreModule, Action} from "@ngrx/store";
 import {INITIAL_APPLICATION_STATE, ApplicationState} from "./store/application-state";
-import {LOAD_USER_THREAD_ACTION, LoadUserThreadsAction} from "./store/actions";
+import {UserThreadsLoadedAction, USER_THREADS_LOADED_ACTION} from "./store/actions";
 import * as _ from 'lodash';
+import {EffectsModule} from "@ngrx/effects";
+import {LoadThreadsEffectService} from "./store/effects/load-threads-effect.service";
+import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 
 function storeReducer(state: ApplicationState = INITIAL_APPLICATION_STATE,
                       action: Action): ApplicationState {
   switch (action.type) {
-    case LOAD_USER_THREAD_ACTION:
+    case USER_THREADS_LOADED_ACTION:
       return handleLoadUserThreadsAction(state, action);
 
     default:
@@ -28,7 +31,7 @@ function storeReducer(state: ApplicationState = INITIAL_APPLICATION_STATE,
 }
 
 function handleLoadUserThreadsAction(state: ApplicationState,
-                                     action: LoadUserThreadsAction): ApplicationState {
+                                     action: UserThreadsLoadedAction): ApplicationState {
   const userData = action.payload;
   const newState:ApplicationState = Object.assign({}, state)
 
@@ -53,7 +56,9 @@ function handleLoadUserThreadsAction(state: ApplicationState,
     BrowserModule,
     FormsModule,
     HttpModule,
-    StoreModule.provideStore(storeReducer)
+    StoreModule.provideStore(storeReducer),
+    EffectsModule.run(LoadThreadsEffectService),
+    StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
   providers: [ThreadsService],
   bootstrap: [AppComponent]
