@@ -30,9 +30,7 @@ export class ThreadSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.store.dispatch(new LoadUserThreadsAction());
-
   }
 
   onThreadSelected(selectedThreadId:number){

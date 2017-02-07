@@ -9,39 +9,13 @@ import {MessageSectionComponent} from "./message-section/message-section.compone
 import {ThreadListComponent} from "./thread-list/thread-list.component";
 import {MessageListComponent} from "./message-list/message-list.component";
 import {ThreadsService} from "./services/threads.service";
-import {StoreModule, Action} from "@ngrx/store";
-import {INITIAL_APPLICATION_STATE, ApplicationState} from "./store/application-state";
-import {UserThreadsLoadedAction, USER_THREADS_LOADED_ACTION} from "./store/actions";
-import * as _ from 'lodash';
+import {StoreModule, combineReducers} from "@ngrx/store";
+import {INITIAL_APPLICATION_STATE} from "./store/application-state";
 import {EffectsModule} from "@ngrx/effects";
 import {LoadThreadsEffectService} from "./store/effects/load-threads-effect.service";
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
-
-function storeReducer(state: ApplicationState = INITIAL_APPLICATION_STATE,
-                      action: Action): ApplicationState {
-  switch (action.type) {
-    case USER_THREADS_LOADED_ACTION:
-      return handleLoadUserThreadsAction(state, action);
-
-    default:
-      return state;
-  }
-
-
-}
-
-function handleLoadUserThreadsAction(state: ApplicationState,
-                                     action: UserThreadsLoadedAction): ApplicationState {
-  const userData = action.payload;
-  const newState:ApplicationState = Object.assign({}, state)
-
-  newState.storeData = {
-    participants: _.keyBy(action.payload.participants, 'id'),
-    messages: _.keyBy(action.payload.messages, 'id'),
-    threads: _.keyBy(action.payload.threads, 'id'),
-  }
-  return newState;
-}
+import {uiState} from "./store/reducers/uiStateReducer";
+import {storeData} from "./store/reducers/storeDataReducer";
 
 @NgModule({
   declarations: [
@@ -56,7 +30,7 @@ function handleLoadUserThreadsAction(state: ApplicationState,
     BrowserModule,
     FormsModule,
     HttpModule,
-    StoreModule.provideStore(storeReducer),
+    StoreModule.provideStore(combineReducers({uiState, storeData}), INITIAL_APPLICATION_STATE),
     EffectsModule.run(LoadThreadsEffectService),
     StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
